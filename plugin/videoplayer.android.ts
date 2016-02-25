@@ -56,8 +56,11 @@ class MediaPlayerEventListener extends org.videolan.libvlc.MediaPlayer.EventList
             case org.videolan.libvlc.MediaPlayer.Event.EndReached:                
                 args.eventName = videoCommon.Video.finishedEvent;                
                 break;
+            case 274: //length changed                
+                args.eventName = videoCommon.Video.lengthChangedEvent;                
+                break;
             default:    
-                //console.log(event.type);    
+               // console.log(event.type + " : " + this._owner.getState());                
                 return; //we don't care about the rest
                 
             // case Event.Stopped:            
@@ -179,5 +182,9 @@ export class Video extends videoCommon.Video {
     
     public getState(): number {
         return this._player.getPlayerState();
-    }        
+    }    
+    
+    public isBuffering(): boolean {
+        return this.getState() == 2;
+    }
 }

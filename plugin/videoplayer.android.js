@@ -48,8 +48,11 @@ var MediaPlayerEventListener = (function (_super) {
             case org.videolan.libvlc.MediaPlayer.Event.EndReached:
                 args.eventName = videoCommon.Video.finishedEvent;
                 break;
+            case 274:
+                args.eventName = videoCommon.Video.lengthChangedEvent;
+                break;
             default:
-                //console.log(event.type);    
+                // console.log(event.type + " : " + this._owner.getState());                
                 return; //we don't care about the rest
         }
         this._owner.notify(args);
@@ -142,6 +145,9 @@ var Video = (function (_super) {
     };
     Video.prototype.getState = function () {
         return this._player.getPlayerState();
+    };
+    Video.prototype.isBuffering = function () {
+        return this.getState() == 2;
     };
     return Video;
 })(videoCommon.Video);

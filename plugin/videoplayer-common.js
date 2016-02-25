@@ -21,6 +21,7 @@ var ON_PLAY = "playing";
 var ON_TIME_CHANGED = "timeChanged";
 var ON_ERROR = "error";
 var ON_FINISH = "finished";
+var ON_LENGTH_CHANGED = "lengthChanged";
 // on Android we explicitly set propertySettings to None because android will invalidate its layout (skip unnecessary native call).
 var AffectsLayout = platform.device.os === platform.platformNames.android ? dependencyObservable.PropertyMetadataSettings.None : dependencyObservable.PropertyMetadataSettings.AffectsLayout;
 function onSrcPropertyChanged(data) {
@@ -101,6 +102,7 @@ var Video = (function (_super) {
     Video.playingEvent = ON_PLAY;
     Video.timeChangedEvent = ON_TIME_CHANGED;
     Video.errorEvent = ON_ERROR;
+    Video.lengthChangedEvent = ON_LENGTH_CHANGED;
     Video.srcProperty = new dependencyObservable.Property(SRC, VIDEO, new proxy.PropertyMetadata(undefined, dependencyObservable.PropertyMetadataSettings.None, onSrcPropertyChanged));
     Video.videoSourceProperty = new dependencyObservable.Property(VIDEO_SOURCE, VIDEO, new proxy.PropertyMetadata(undefined, dependencyObservable.PropertyMetadataSettings.None));
     Video.isLoadingProperty = new dependencyObservable.Property(ISLOADING, VIDEO, new proxy.PropertyMetadata(false, dependencyObservable.PropertyMetadataSettings.None));

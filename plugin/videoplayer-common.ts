@@ -22,6 +22,7 @@ var ON_PLAY = "playing";
 var ON_TIME_CHANGED = "timeChanged";
 var ON_ERROR = "error";
 var ON_FINISH = "finished";
+var ON_LENGTH_CHANGED = "lengthChanged";
 
 // on Android we explicitly set propertySettings to None because android will invalidate its layout (skip unnecessary native call).
 var AffectsLayout = platform.device.os === platform.platformNames.android ? dependencyObservable.PropertyMetadataSettings.None : dependencyObservable.PropertyMetadataSettings.AffectsLayout;
@@ -60,6 +61,7 @@ export class Video extends view.View implements definition.Video {
     public static playingEvent = ON_PLAY;
     public static timeChangedEvent = ON_TIME_CHANGED;
     public static errorEvent = ON_ERROR;
+    public static lengthChangedEvent = ON_LENGTH_CHANGED;
 
     public static srcProperty = new dependencyObservable.Property(
         SRC,
