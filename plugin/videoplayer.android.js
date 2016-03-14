@@ -1,3 +1,4 @@
+"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -58,7 +59,7 @@ var MediaPlayerEventListener = (function (_super) {
         this._owner.notify(args);
     };
     return MediaPlayerEventListener;
-})(org.videolan.libvlc.MediaPlayer.EventListener);
+}(org.videolan.libvlc.MediaPlayer.EventListener));
 var Video = (function (_super) {
     __extends(Video, _super);
     function Video() {
@@ -80,6 +81,7 @@ var Video = (function (_super) {
         player.setEventListener(mediaPlayerEventListener);
         this._android = vlcTextute;
         this._player = player;
+        this._android.setZOrderOnTop(true);
         if (this.src) {
             var isUrl = false;
             if (this.src.indexOf("://") !== -1) {
@@ -150,5 +152,5 @@ var Video = (function (_super) {
         return this.getState() == 2;
     };
     return Video;
-})(videoCommon.Video);
+}(videoCommon.Video));
 exports.Video = Video;

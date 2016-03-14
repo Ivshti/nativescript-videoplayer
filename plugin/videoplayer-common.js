@@ -1,4 +1,5 @@
 /// <reference path="../tns-core-modules/tns-core-modules.d.ts" /> Needed for autocompletion and compilation.
+"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -108,5 +109,5 @@ var Video = (function (_super) {
     Video.isLoadingProperty = new dependencyObservable.Property(ISLOADING, VIDEO, new proxy.PropertyMetadata(false, dependencyObservable.PropertyMetadataSettings.None));
     Video.autoplayProperty = new dependencyObservable.Property(AUTOPLAY, VIDEO, new proxy.PropertyMetadata(false, dependencyObservable.PropertyMetadataSettings.None));
     return Video;
-})(view.View);
+}(view.View));
 exports.Video = Video;

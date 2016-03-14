@@ -102,6 +102,7 @@ export class Video extends videoCommon.Video {
         
         this._android = vlcTextute;
         this._player = player;
+        this._android.setZOrderOnTop(true);
 
         if (this.src) {
             var isUrl = false;
