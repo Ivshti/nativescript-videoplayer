@@ -81,7 +81,7 @@ var Video = (function (_super) {
         player.setEventListener(mediaPlayerEventListener);
         this._android = vlcTextute;
         this._player = player;
-        this._android.setZOrderOnTop(true);
+        //this._android.setZOrderOnTop(true);
         if (this.src) {
             var isUrl = false;
             if (this.src.indexOf("://") !== -1) {
