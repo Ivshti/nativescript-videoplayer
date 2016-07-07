@@ -6,6 +6,7 @@ import proxy = require("ui/core/proxy");
 import * as enumsModule from "ui/enums";
 import view = require("ui/core/view");
 import utils = require("utils/utils");
+import application = require("application");
 
 global.moduleMerge(videoCommon, exports);
 
@@ -82,27 +83,53 @@ class MediaPlayerEventListener extends org.videolan.libvlc.MediaPlayer.EventList
     }		
 }
 
+class Callback extends org.videolan.libvlc.IVLCVout.Callback {    
+    public _owner: Video;
+    
+    constructor(owner) {
+        super();
+        this._owner = owner;
+        return global.__native(this);
+    }
+
+    public onNewLayout(vout: org.videolan.libvlc.IVLCVout, width, height, visibleWidth, visibleHeight, sarNum, sarDen) {
+        this._owner.setSize(width, height);                        
+    }
+    
+    public onSurfacesCreated(vout: org.videolan.libvlc.IVLCVout) {
+        //application.on("orientationChanged", this.orientationChanged);
+    }
+    
+    public onSurfacesDestroyed(vout: org.videolan.libvlc.IVLCVout) {
+        //application.off("orientationChanged", this.orientationChanged);
+    }
+    
+    // public orientationChanged() {        
+    //     this._owner.setSize(this._owner.mw, this._owner.mh);
+    // };
+}
+
 export class Video extends videoCommon.Video {
-    private _android: com.coolapps.vlcsurfaceviewlib.VlcSurfaceView;
+    private _android: com.coolapps.VLCSurfaceView;
     private _player: org.videolan.libvlc.MediaPlayer;
 
-    get android(): com.coolapps.vlcsurfaceviewlib.VlcSurfaceView {
+    get android(): com.coolapps.VLCSurfaceView {
         return this._android;
-    }
+    }    
 
     public _createUI() {
         var that = new WeakRef(this);
         
-        var vlcTextute = new com.coolapps.vlcsurfaceviewlib.VlcSurfaceView(this._context);        
-        var vlc = vlcTextute.getLibVLC();        
-        var player = vlcTextute.getMediaPlayer();
-        
+        var vlcTextute = new com.coolapps.VLCSurfaceView(this._context);        
+        var vlc = vlcTextute.GetLibVLC();        
+        var player = vlcTextute.GetMediaPlayer();        
         var mediaPlayerEventListener = new MediaPlayerEventListener(this);
 		player.setEventListener(mediaPlayerEventListener);
         
         this._android = vlcTextute;
         this._player = player;
-        //this._android.setZOrderOnTop(true);
+        var callback = new Callback(this);        
+        player.getVLCVout().addCallback(callback);        
 
         if (this.src) {
             var isUrl = false;
@@ -141,7 +168,7 @@ export class Video extends videoCommon.Video {
 
     public _setNativeVideo(nativeVideo: any) {                 
         if (nativeVideo) { 
-            var vlc = this.android.getLibVLC();
+            var vlc = this.android.GetLibVLC();
             var media = new org.videolan.libvlc.Media(vlc, nativeVideo);
             this._player.setMedia(media);
         } else {
@@ -187,5 +214,54 @@ export class Video extends videoCommon.Video {
     
     public isBuffering(): boolean {
         return this.getState() == 2;
+    } 
+
+    //video width and height    
+    public setSize(width, height) {
+        if (width * height == 0) {
+            return;
+        }
+       
+        var mVideoWidth = width;
+        var mVideoHeight = height;
+        this.mw = width;
+        this.mh = height;
+        if (mVideoWidth * mVideoHeight <= 1) {
+            return;
+        }
+         
+        // get screen size
+        var activity = application.android.currentContext; 
+        var w = activity.getWindow().getDecorView().getWidth();
+        var h = activity.getWindow().getDecorView().getHeight();
+        
+        // getWindow().getDecorView() doesn't always take orientation into
+        // account, we have to correct the values
+        var isPortrait = activity.getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT;
+        if (w > h && isPortrait || w < h && !isPortrait) {
+            var i = w;
+            w = h;
+            h = i;
+        }        
+
+        var videoAR = mVideoWidth / mVideoHeight;
+        var screenAR = w / h;
+
+        if (screenAR < videoAR) {
+            h = w / videoAR;
+        }
+        else {
+            w = h * videoAR;
+        }
+
+        // force surface buffer size
+        this._android.getHolder().setFixedSize(mVideoWidth, mVideoHeight);
+        
+        var lp = this._android.getLayoutParams();
+        lp.width = w;
+        lp.height = h;
+        this._android.setLayoutParams(lp);
+        
+        this._android.invalidate();        
     }
 }
