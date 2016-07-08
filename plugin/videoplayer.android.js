@@ -17,68 +17,81 @@ function onVideoSourcePropertyChanged(data) {
 }
 // register the setNativeValue callback
 videoCommon.Video.videoSourceProperty.metadata.onSetNativeValue = onVideoSourcePropertyChanged;
-var MediaPlayerEventListener = (function (_super) {
-    __extends(MediaPlayerEventListener, _super);
-    function MediaPlayerEventListener(owner) {
-        _super.call(this);
-        this._owner = owner;
-        return global.__native(this);
-    }
-    MediaPlayerEventListener.prototype.onEvent = function (event) {
-        var args = {
-            object: this,
-            eventName: "",
-            value: 1
-        };
-        switch (event.type) {
-            case org.videolan.libvlc.MediaPlayer.Event.Opening:
-                args.eventName = videoCommon.Video.openingEvent;
-                break;
-            case org.videolan.libvlc.MediaPlayer.Event.Playing:
-                args.eventName = videoCommon.Video.playingEvent;
-                break;
-            case org.videolan.libvlc.MediaPlayer.Event.TimeChanged:
-                args.eventName = videoCommon.Video.timeChangedEvent;
-                args.value = event.getTimeChanged();
-                break;
-            // case org.videolan.libvlc.MediaPlayer.Event.PositionChanged:
-            //     console.log("PositionChanged " + event.getPositionChanged());
-            //     break;                                
-            case org.videolan.libvlc.MediaPlayer.Event.EncounteredError:
-                args.eventName = videoCommon.Video.errorEvent;
-                break;
-            case org.videolan.libvlc.MediaPlayer.Event.EndReached:
-                args.eventName = videoCommon.Video.finishedEvent;
-                break;
-            case 274:
-                args.eventName = videoCommon.Video.lengthChangedEvent;
-                break;
-            default:
-                // console.log(event.type + " : " + this._owner.getState());                
-                return; //we don't care about the rest
-        }
-        this._owner.notify(args);
-    };
-    return MediaPlayerEventListener;
-}(org.videolan.libvlc.MediaPlayer.EventListener));
-var Callback = (function (_super) {
-    __extends(Callback, _super);
-    function Callback(owner) {
-        _super.call(this);
-        this._owner = owner;
-        return global.__native(this);
-    }
-    Callback.prototype.onNewLayout = function (vout, width, height, visibleWidth, visibleHeight, sarNum, sarDen) {
-        this._owner.setSize(width, height);
-    };
-    Callback.prototype.onSurfacesCreated = function (vout) {
-        //application.on("orientationChanged", this.orientationChanged);
-    };
-    Callback.prototype.onSurfacesDestroyed = function (vout) {
-        //application.off("orientationChanged", this.orientationChanged);
-    };
-    return Callback;
-}(org.videolan.libvlc.IVLCVout.Callback));
+// class MediaPlayerEventListener extends org.videolan.libvlc.MediaPlayer.EventListener {
+//     private _owner: Video;
+//     constructor(owner) {
+//         super();
+//         this._owner = owner;
+//         return global.__native(this);
+//     }
+//     public onEvent(event) {                      
+//         var args: any = {
+//             object: this,
+//             eventName: "",
+//             value: 1
+//         };
+//         switch (event.type) {
+//             case org.videolan.libvlc.MediaPlayer.Event.Opening:                
+//                 args.eventName = videoCommon.Video.openingEvent;
+//                 break;
+//             case org.videolan.libvlc.MediaPlayer.Event.Playing:                   
+//                 args.eventName = videoCommon.Video.playingEvent;
+//                 break;
+//             case org.videolan.libvlc.MediaPlayer.Event.TimeChanged:
+//                 args.eventName = videoCommon.Video.timeChangedEvent;
+//                 args.value = event.getTimeChanged();
+//                 break;
+//             // case org.videolan.libvlc.MediaPlayer.Event.PositionChanged:
+//             //     console.log("PositionChanged " + event.getPositionChanged());
+//             //     break;                                
+//             case org.videolan.libvlc.MediaPlayer.Event.EncounteredError:                
+//                 args.eventName = videoCommon.Video.errorEvent;                
+//                 break;
+//             case org.videolan.libvlc.MediaPlayer.Event.EndReached:                
+//                 args.eventName = videoCommon.Video.finishedEvent;                
+//                 break;
+//             case 274: //length changed                
+//                 args.eventName = videoCommon.Video.lengthChangedEvent;                
+//                 break;
+//             default:    
+//                // console.log(event.type + " : " + this._owner.getState());                
+//                 return; //we don't care about the rest
+//             // case Event.Stopped:            
+//             // case Event.Paused:
+//             // case Event.Vout:                
+//             // case Event.ESAdded:
+//             // case Event.ESDeleted:
+//             // case Event.SeekableChanged:
+//             // case Event.PausableChanged:                    
+//             // public float getPositionChanged() {        
+//             // public int getVoutCount() {        
+//             // public int getEsChangedType() {        
+//             // public boolean getPausable() {        
+//             // public boolean getSeekable() {            
+//         }        
+//         this._owner.notify(args);
+//     }		
+// }
+// class Callback extends org.videolan.libvlc.IVLCVout.Callback {    
+//     public _owner: Video;
+//     constructor(owner) {
+//         super();
+//         this._owner = owner;
+//         return global.__native(this);
+//     }
+//     public onNewLayout(vout: org.videolan.libvlc.IVLCVout, width, height, visibleWidth, visibleHeight, sarNum, sarDen) {
+//         this._owner.setSize(width, height);                        
+//     }
+//     public onSurfacesCreated(vout: org.videolan.libvlc.IVLCVout) {
+//         //application.on("orientationChanged", this.orientationChanged);
+//     }
+//     public onSurfacesDestroyed(vout: org.videolan.libvlc.IVLCVout) {
+//         //application.off("orientationChanged", this.orientationChanged);
+//     }
+//     // public orientationChanged() {        
+//     //     this._owner.setSize(this._owner.mw, this._owner.mh);
+//     // };
+// }
 var Video = (function (_super) {
     __extends(Video, _super);
     function Video() {
@@ -96,11 +109,61 @@ var Video = (function (_super) {
         var vlcTextute = new com.coolapps.VLCSurfaceView(this._context);
         var vlc = vlcTextute.GetLibVLC();
         var player = vlcTextute.GetMediaPlayer();
-        var mediaPlayerEventListener = new MediaPlayerEventListener(this);
+        //var mediaPlayerEventListener = new MediaPlayerEventListener(this);
+        var mediaPlayerEventListener = new org.videolan.libvlc.VLCEvent.Listener("org.videolan.libvlc.MediaPlayer.Event", {
+            onEvent: function (event) {
+                var args = {
+                    object: this,
+                    eventName: "",
+                    value: 1
+                };
+                switch (event.type) {
+                    case org.videolan.libvlc.MediaPlayer.Event.Opening:
+                        args.eventName = videoCommon.Video.openingEvent;
+                        break;
+                    case org.videolan.libvlc.MediaPlayer.Event.Playing:
+                        args.eventName = videoCommon.Video.playingEvent;
+                        break;
+                    case org.videolan.libvlc.MediaPlayer.Event.TimeChanged:
+                        args.eventName = videoCommon.Video.timeChangedEvent;
+                        args.value = event.getTimeChanged();
+                        break;
+                    // case org.videolan.libvlc.MediaPlayer.Event.PositionChanged:
+                    //     console.log("PositionChanged " + event.getPositionChanged());
+                    //     break;                                
+                    case org.videolan.libvlc.MediaPlayer.Event.EncounteredError:
+                        args.eventName = videoCommon.Video.errorEvent;
+                        break;
+                    case org.videolan.libvlc.MediaPlayer.Event.EndReached:
+                        args.eventName = videoCommon.Video.finishedEvent;
+                        break;
+                    case 274:
+                        args.eventName = videoCommon.Video.lengthChangedEvent;
+                        break;
+                    default:
+                        // console.log(event.type + " : " + this._owner.getState());                
+                        return; //we don't care about the rest                                        
+                }
+                this._owner.notify(args);
+            }
+        });
+        mediaPlayerEventListener._owner = this;
         player.setEventListener(mediaPlayerEventListener);
         this._android = vlcTextute;
         this._player = player;
-        var callback = new Callback(this);
+        //var callback = new Callback(this);
+        var callback = new org.videolan.libvlc.IVLCVout.Callback({
+            onNewLayout: function (vout, width, height, visibleWidth, visibleHeight, sarNum, sarDen) {
+                this._owner.setSize(width, height);
+            },
+            onSurfacesCreated: function (vout) {
+                //application.on("orientationChanged", this.orientationChanged);
+            },
+            onSurfacesDestroyed: function (vout) {
+                //application.off("orientationChanged", this.orientationChanged);
+            }
+        });
+        callback._owner = this;
         player.getVLCVout().addCallback(callback);
         if (this.src) {
             var isUrl = false;
@@ -151,7 +214,9 @@ var Video = (function (_super) {
         this._player.pause();
     };
     Video.prototype.stop = function () {
-        this._player.stop();
+        if (this._player) {
+            this._player.stop();
+        }
     };
     Video.prototype.seekTo = function (msec) {
         this._player.setTime(msec);
