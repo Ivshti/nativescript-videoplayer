@@ -292,7 +292,7 @@ export class Video extends videoCommon.Video {
         }
 
         // get screen size
-        var activity = application.android.currentContext;
+        var activity = application.android.startActivity;
         var w = activity.getWindow().getDecorView().getWidth();
         var h = activity.getWindow().getDecorView().getHeight();
 

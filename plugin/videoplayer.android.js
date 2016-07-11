@@ -249,7 +249,7 @@ var Video = (function (_super) {
             return;
         }
         // get screen size
-        var activity = application.android.currentContext;
+        var activity = application.android.startActivity;
         var w = activity.getWindow().getDecorView().getWidth();
         var h = activity.getWindow().getDecorView().getHeight();
         // getWindow().getDecorView() doesn't always take orientation into
