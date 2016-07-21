@@ -7,6 +7,8 @@ var __extends = (this && this.__extends) || function (d, b) {
 var videoCommon = require("./videoplayer-common");
 var fs = require("file-system");
 var application = require("application");
+var settings = require("application-settings");
+var pkg = require("~/package.json");
 global.moduleMerge(videoCommon, exports);
 function onVideoSourcePropertyChanged(data) {
     var video = data.object;
@@ -154,6 +156,7 @@ var Video = (function (_super) {
         //var callback = new Callback(this);
         var callback = new org.videolan.libvlc.IVLCVout.Callback({
             onNewLayout: function (vout, width, height, visibleWidth, visibleHeight, sarNum, sarDen) {
+                console.log("onNewLayout", width, height);
                 this._owner.setSize(width, height);
             },
             onSurfacesCreated: function (vout) {
@@ -167,10 +170,19 @@ var Video = (function (_super) {
         player.getVLCVout().addCallback(callback);
         if (this.src) {
             var isUrl = false;
-            if (this.src.indexOf("://") !== -1) {
-                if (this.src.indexOf('res://') === -1) {
-                    isUrl = true;
+            try {
+                if (this.src.indexOf("://") !== -1) {
+                    if (this.src.indexOf('res://') === -1) {
+                        isUrl = true;
+                    }
                 }
+            }
+            catch (error) {
+                //trying to catch indexOf .src failed
+                error.src = this.src;
+                var err = JSON.stringify({ report_id: Date.now(), err: error, version: pkg.version });
+                settings.setString("uncaughtError", err);
+                console.log("onUncaughtError: " + err);
             }
             if (!isUrl) {
                 var currentPath = fs.knownFolders.currentApp().path;
@@ -238,20 +250,16 @@ var Video = (function (_super) {
     };
     //video width and height    
     Video.prototype.setSize = function (width, height) {
-        if (width * height == 0) {
+        if (width * height <= 1) {
             return;
         }
         var mVideoWidth = width;
         var mVideoHeight = height;
-        this.mw = width;
-        this.mh = height;
-        if (mVideoWidth * mVideoHeight <= 1) {
-            return;
-        }
         // get screen size
         var activity = application.android.startActivity;
         var w = activity.getWindow().getDecorView().getWidth();
         var h = activity.getWindow().getDecorView().getHeight();
+        console.log("activity size", w, h);
         // getWindow().getDecorView() doesn't always take orientation into
         // account, we have to correct the values
         var isPortrait = activity.getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT;
@@ -259,17 +267,27 @@ var Video = (function (_super) {
             var i = w;
             w = h;
             h = i;
+            console.log("activity size portrait", w, h);
         }
         var videoAR = mVideoWidth / mVideoHeight;
         var screenAR = w / h;
+        console.log("activity AR", videoAR, screenAR);
         if (screenAR < videoAR) {
             h = w / videoAR;
+            console.log("activity AR h", h);
         }
         else {
             w = h * videoAR;
+            console.log("activity AR w", w);
         }
         // force surface buffer size
         this._android.getHolder().setFixedSize(mVideoWidth, mVideoHeight);
+        /* Log.i("setSize", "org.nativescript.widgets.GridLayout1 " + w + " : " + h);
+        org.nativescript.widgets.CommonLayoutParams lp = (org.nativescript.widgets.CommonLayoutParam)this.getLayoutParams();
+        lp.width = w;
+        lp.height = h;
+        this.setLayoutParams(lp);
+        */
         var lp = this._android.getLayoutParams();
         lp.width = w;
         lp.height = h;
@@ -279,3 +297,4 @@ var Video = (function (_super) {
     return Video;
 }(videoCommon.Video));
 exports.Video = Video;
+//# sourceMappingURL=videoplayer.android.js.map

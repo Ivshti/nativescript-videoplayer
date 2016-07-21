@@ -7,6 +7,8 @@ import * as enumsModule from "ui/enums";
 import view = require("ui/core/view");
 import utils = require("utils/utils");
 import application = require("application");
+import settings = require("application-settings");
+import pkg = require("~/package.json");
 
 global.moduleMerge(videoCommon, exports);
 
@@ -173,8 +175,10 @@ export class Video extends videoCommon.Video {
         this._android = vlcTextute;
         this._player = player;
         //var callback = new Callback(this);
+
         var callback = new org.videolan.libvlc.IVLCVout.Callback({
             onNewLayout: function (vout: org.videolan.libvlc.IVLCVout, width, height, visibleWidth, visibleHeight, sarNum, sarDen) {
+                console.log("onNewLayout", width, height);
                 this._owner.setSize(width, height);
             },
 
@@ -188,15 +192,23 @@ export class Video extends videoCommon.Video {
         });
         callback._owner = this;
 
-        player.getVLCVout().addCallback(callback);
+        player.getVLCVout().addCallback(callback);                
 
         if (this.src) {
             var isUrl = false;
 
-            if (this.src.indexOf("://") !== -1) {
-                if (this.src.indexOf('res://') === -1) {
-                    isUrl = true;
+            try {
+                if (this.src.indexOf("://") !== -1) {
+                    if (this.src.indexOf('res://') === -1) {
+                        isUrl = true;
+                    }
                 }
+            } catch (error) {
+                //trying to catch indexOf .src failed
+                error.src = this.src;
+                var err = JSON.stringify({ report_id: Date.now(), err: error, version: pkg.version });
+                settings.setString("uncaughtError", err);
+                console.log("onUncaughtError: " + err);
             }
 
             if (!isUrl) {
@@ -246,7 +258,7 @@ export class Video extends videoCommon.Video {
     public pause(): void {
         this._player.pause();
     }
-    
+
     public stop(): void {
         if (this._player) {
             this._player.stop();
@@ -275,27 +287,22 @@ export class Video extends videoCommon.Video {
 
     public isBuffering(): boolean {
         return this.getState() == 2;
-    }
+    }    
 
     //video width and height    
-    public setSize(width, height) {
-        if (width * height == 0) {
+    public setSize(width, height) {        
+        if (width * height <= 1) {
             return;
         }
 
         var mVideoWidth = width;
-        var mVideoHeight = height;
-        this.mw = width;
-        this.mh = height;
-        if (mVideoWidth * mVideoHeight <= 1) {
-            return;
-        }
+        var mVideoHeight = height;        
 
         // get screen size
         var activity = application.android.startActivity;
         var w = activity.getWindow().getDecorView().getWidth();
         var h = activity.getWindow().getDecorView().getHeight();
-
+        console.log("activity size", w, h);
         // getWindow().getDecorView() doesn't always take orientation into
         // account, we have to correct the values
         var isPortrait = activity.getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT;
@@ -303,26 +310,37 @@ export class Video extends videoCommon.Video {
             var i = w;
             w = h;
             h = i;
+            console.log("activity size portrait", w, h);
         }
 
         var videoAR = mVideoWidth / mVideoHeight;
         var screenAR = w / h;
-
+        console.log("activity AR", videoAR, screenAR);
+        
         if (screenAR < videoAR) {
             h = w / videoAR;
+            console.log("activity AR h", h);
         }
         else {
             w = h * videoAR;
+            console.log("activity AR w", w);
         }
 
         // force surface buffer size
         this._android.getHolder().setFixedSize(mVideoWidth, mVideoHeight);
+
+        /* Log.i("setSize", "org.nativescript.widgets.GridLayout1 " + w + " : " + h);
+        org.nativescript.widgets.CommonLayoutParams lp = (org.nativescript.widgets.CommonLayoutParam)this.getLayoutParams();
+        lp.width = w;
+        lp.height = h;
+        this.setLayoutParams(lp);
+        */
 
         var lp = this._android.getLayoutParams();
         lp.width = w;
         lp.height = h;
         this._android.setLayoutParams(lp);
 
-        this._android.invalidate();
+        this._android.invalidate();               
     }
 }

@@ -1,3 +1,4 @@
+"use strict";
 var types = require("utils/types");
 var common = require("./video-source-common");
 global.moduleMerge(common, exports);
@@ -76,5 +77,6 @@ var VideoSource = (function () {
         configurable: true
     });
     return VideoSource;
-})();
+}());
 exports.VideoSource = VideoSource;
+//# sourceMappingURL=video-source.android.js.map
