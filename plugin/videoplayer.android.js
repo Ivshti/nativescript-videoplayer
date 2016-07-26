@@ -126,13 +126,14 @@ var Video = (function (_super) {
                     case org.videolan.libvlc.MediaPlayer.Event.Playing:
                         args.eventName = videoCommon.Video.playingEvent;
                         break;
-                    case org.videolan.libvlc.MediaPlayer.Event.TimeChanged:
+                    // case org.videolan.libvlc.MediaPlayer.Event.TimeChanged:
+                    //     args.eventName = videoCommon.Video.timeChangedEvent;
+                    //     args.value = event.getTimeChanged();
+                    //     break;
+                    case org.videolan.libvlc.MediaPlayer.Event.PositionChanged:
                         args.eventName = videoCommon.Video.timeChangedEvent;
-                        args.value = event.getTimeChanged();
+                        args.value = event.getPositionChanged();
                         break;
-                    // case org.videolan.libvlc.MediaPlayer.Event.PositionChanged:
-                    //     console.log("PositionChanged " + event.getPositionChanged());
-                    //     break;                                
                     case org.videolan.libvlc.MediaPlayer.Event.EncounteredError:
                         args.eventName = videoCommon.Video.errorEvent;
                         break;
@@ -142,8 +143,11 @@ var Video = (function (_super) {
                     case 274:
                         args.eventName = videoCommon.Video.lengthChangedEvent;
                         break;
+                    case 259:
+                        args.eventName = videoCommon.Video.bufferingEvent;
+                        break;
                     default:
-                        // console.log(event.type + " : " + this._owner.getState());                
+                        console.log("vlc event and state", event.type, this._owner.getState());
                         return; //we don't care about the rest                                        
                 }
                 this._owner.notify(args);
@@ -230,11 +234,17 @@ var Video = (function (_super) {
             this._player.stop();
         }
     };
-    Video.prototype.seekTo = function (msec) {
+    Video.prototype.seekTo = function (pos) {
+        this._player.setPosition(pos);
+    };
+    Video.prototype.seekToTime = function (msec) {
         this._player.setTime(msec);
     };
-    Video.prototype.getPosition = function () {
+    Video.prototype.getTime = function () {
         return this._player.getTime();
+    };
+    Video.prototype.getPosition = function () {
+        return this._player.getPosition();
     };
     Video.prototype.getDuration = function () {
         return this._player.getLength();
@@ -242,11 +252,11 @@ var Video = (function (_super) {
     Video.prototype.isPlaying = function () {
         return this._player.isPlaying();
     };
-    Video.prototype.getState = function () {
-        return this._player.getPlayerState();
-    };
     Video.prototype.isBuffering = function () {
         return this.getState() == 2;
+    };
+    Video.prototype.getState = function () {
+        return this._player.getPlayerState();
     };
     //video width and height    
     Video.prototype.setSize = function (width, height) {

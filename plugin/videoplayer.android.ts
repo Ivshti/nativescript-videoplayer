@@ -143,13 +143,14 @@ export class Video extends videoCommon.Video {
                         case org.videolan.libvlc.MediaPlayer.Event.Playing:
                             args.eventName = videoCommon.Video.playingEvent;
                             break;
-                        case org.videolan.libvlc.MediaPlayer.Event.TimeChanged:
+                        // case org.videolan.libvlc.MediaPlayer.Event.TimeChanged:
+                        //     args.eventName = videoCommon.Video.timeChangedEvent;
+                        //     args.value = event.getTimeChanged();
+                        //     break;
+                        case org.videolan.libvlc.MediaPlayer.Event.PositionChanged:                            
                             args.eventName = videoCommon.Video.timeChangedEvent;
-                            args.value = event.getTimeChanged();
-                            break;
-                        // case org.videolan.libvlc.MediaPlayer.Event.PositionChanged:
-                        //     console.log("PositionChanged " + event.getPositionChanged());
-                        //     break;                                
+                            args.value = event.getPositionChanged();
+                            break;                                
                         case org.videolan.libvlc.MediaPlayer.Event.EncounteredError:
                             args.eventName = videoCommon.Video.errorEvent;
                             break;
@@ -159,8 +160,11 @@ export class Video extends videoCommon.Video {
                         case 274: //length changed                
                             args.eventName = videoCommon.Video.lengthChangedEvent;
                             break;
+                        case 259: //buffering - not triggering               
+                            args.eventName = videoCommon.Video.bufferingEvent;
+                            break;                            
                         default:
-                            // console.log(event.type + " : " + this._owner.getState());                
+                            console.log("vlc event and state", event.type, this._owner.getState());                
                             return; //we don't care about the rest                                        
                     }
 
@@ -265,12 +269,20 @@ export class Video extends videoCommon.Video {
         }
     }
 
-    public seekTo(msec: number): void {
+    public seekTo(pos: number): void {
+        this._player.setPosition(pos);
+    }
+
+    public seekToTime(msec: number): void {
         this._player.setTime(msec);
     }
 
-    public getPosition(): number {
+    public getTime(): number {
         return this._player.getTime();
+    }    
+
+    public getPosition(): number {        
+        return this._player.getPosition();
     }
 
     public getDuration(): number {
@@ -279,14 +291,14 @@ export class Video extends videoCommon.Video {
 
     public isPlaying(): boolean {
         return this._player.isPlaying();
+    }    
+
+    public isBuffering(): boolean {
+        return this.getState() == 2;
     }
 
     public getState(): number {
         return this._player.getPlayerState();
-    }
-
-    public isBuffering(): boolean {
-        return this.getState() == 2;
     }    
 
     //video width and height    

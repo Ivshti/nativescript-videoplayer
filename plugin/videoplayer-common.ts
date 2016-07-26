@@ -11,18 +11,19 @@ import utils = require("utils/utils");
 import * as types from "utils/types"; 
 
 
-var SRC = "src";
-var VIDEO_SOURCE = "videoSource";
-var VIDEO = "Video"; 
-var ISLOADING = "isLoading"; 
-var AUTOPLAY = "autoplay";
+const SRC = "src";
+const VIDEO_SOURCE = "videoSource";
+const VIDEO = "Video"; 
+const ISLOADING = "isLoading"; 
+const AUTOPLAY = "autoplay";
 
-var ON_OPEN = "opening";
-var ON_PLAY = "playing";
-var ON_TIME_CHANGED = "timeChanged";
-var ON_ERROR = "error";
-var ON_FINISH = "finished";
-var ON_LENGTH_CHANGED = "lengthChanged";
+const ON_OPEN = "opening";
+const ON_PLAY = "playing";
+const ON_TIME_CHANGED = "timeChanged";
+const ON_ERROR = "error";
+const ON_FINISH = "finished";
+const ON_LENGTH_CHANGED = "lengthChanged";
+const ON_BUFFERING = "buffering";
 
 // on Android we explicitly set propertySettings to None because android will invalidate its layout (skip unnecessary native call).
 var AffectsLayout = platform.device.os === platform.platformNames.android ? dependencyObservable.PropertyMetadataSettings.None : dependencyObservable.PropertyMetadataSettings.AffectsLayout;
@@ -62,6 +63,7 @@ export class Video extends view.View implements definition.Video {
     public static timeChangedEvent = ON_TIME_CHANGED;
     public static errorEvent = ON_ERROR;
     public static lengthChangedEvent = ON_LENGTH_CHANGED;
+    public static bufferingEvent = ON_BUFFERING;    
 
     public static srcProperty = new dependencyObservable.Property(
         SRC,
