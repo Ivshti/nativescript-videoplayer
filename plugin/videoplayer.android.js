@@ -172,6 +172,10 @@ var Video = (function (_super) {
         });
         callback._owner = this;
         player.getVLCVout().addCallback(callback);
+        this.setSrc();
+    };
+    Video.prototype.setSrc = function () {
+        var that = this;
         if (this.src) {
             var isUrl = false;
             try {
@@ -200,13 +204,14 @@ var Video = (function (_super) {
             else {
                 this.src = android.net.Uri.parse(this.src);
             }
+            var vlc = this._android.GetLibVLC();
             var media = new org.videolan.libvlc.Media(vlc, this.src);
-            player.setMedia(media);
+            this._player.setMedia(media);
         }
         if (this.autoplay === true) {
             //todo a bit of an ugly fix
             setTimeout(function () {
-                player.play();
+                that._player.play();
             }, 100);
         }
     };

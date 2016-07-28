@@ -68,7 +68,8 @@ export class Video extends view.View implements definition.Video {
     public static srcProperty = new dependencyObservable.Property(
         SRC,
         VIDEO,
-        new proxy.PropertyMetadata(undefined, dependencyObservable.PropertyMetadataSettings.None, onSrcPropertyChanged)
+        new proxy.PropertyMetadata(undefined, dependencyObservable.PropertyMetadataSettings.None)
+        //new proxy.PropertyMetadata(undefined, dependencyObservable.PropertyMetadataSettings.None, onSrcPropertyChanged)
     );
 
     public static videoSourceProperty = new dependencyObservable.Property(

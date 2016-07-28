@@ -147,10 +147,10 @@ export class Video extends videoCommon.Video {
                         //     args.eventName = videoCommon.Video.timeChangedEvent;
                         //     args.value = event.getTimeChanged();
                         //     break;
-                        case org.videolan.libvlc.MediaPlayer.Event.PositionChanged:                            
+                        case org.videolan.libvlc.MediaPlayer.Event.PositionChanged:
                             args.eventName = videoCommon.Video.timeChangedEvent;
                             args.value = event.getPositionChanged();
-                            break;                                
+                            break;
                         case org.videolan.libvlc.MediaPlayer.Event.EncounteredError:
                             args.eventName = videoCommon.Video.errorEvent;
                             break;
@@ -162,9 +162,9 @@ export class Video extends videoCommon.Video {
                             break;
                         case 259: //buffering - not triggering               
                             args.eventName = videoCommon.Video.bufferingEvent;
-                            break;                            
+                            break;
                         default:
-                            console.log("vlc event and state", event.type, this._owner.getState());                
+                            console.log("vlc event and state", event.type, this._owner.getState());
                             return; //we don't care about the rest                                        
                     }
 
@@ -196,7 +196,13 @@ export class Video extends videoCommon.Video {
         });
         callback._owner = this;
 
-        player.getVLCVout().addCallback(callback);                
+        player.getVLCVout().addCallback(callback);
+
+        this.setSrc();
+    }
+
+    public setSrc(): void {
+        var that = this;
 
         if (this.src) {
             var isUrl = false;
@@ -229,14 +235,15 @@ export class Video extends videoCommon.Video {
                 this.src = android.net.Uri.parse(this.src);
             }
 
+            var vlc = this._android.GetLibVLC();            
             var media = new org.videolan.libvlc.Media(vlc, this.src);
-            player.setMedia(media);
+            this._player.setMedia(media);
         }
 
         if (this.autoplay === true) {
             //todo a bit of an ugly fix
             setTimeout(function () {
-                player.play();
+                that._player.play();
             }, 100);
         }
     }
@@ -245,7 +252,11 @@ export class Video extends videoCommon.Video {
         if (nativeVideo) {
             var vlc = this.android.GetLibVLC();
             var media = new org.videolan.libvlc.Media(vlc, nativeVideo);
-            this._player.setMedia(media);
+            this._player.setMedia(media);            
+
+            // if (this.autoplay === true) {
+            //     this._player.play();
+            // }
         } else {
             this.stop();
         }
@@ -279,9 +290,9 @@ export class Video extends videoCommon.Video {
 
     public getTime(): number {
         return this._player.getTime();
-    }    
+    }
 
-    public getPosition(): number {        
+    public getPosition(): number {
         return this._player.getPosition();
     }
 
@@ -291,7 +302,7 @@ export class Video extends videoCommon.Video {
 
     public isPlaying(): boolean {
         return this._player.isPlaying();
-    }    
+    }
 
     public isBuffering(): boolean {
         return this.getState() == 2;
@@ -299,16 +310,16 @@ export class Video extends videoCommon.Video {
 
     public getState(): number {
         return this._player.getPlayerState();
-    }    
+    }
 
     //video width and height    
-    public setSize(width, height) {        
+    public setSize(width, height) {
         if (width * height <= 1) {
             return;
         }
 
         var mVideoWidth = width;
-        var mVideoHeight = height;        
+        var mVideoHeight = height;
 
         // get screen size
         var activity = application.android.startActivity;
@@ -328,7 +339,7 @@ export class Video extends videoCommon.Video {
         var videoAR = mVideoWidth / mVideoHeight;
         var screenAR = w / h;
         console.log("activity AR", videoAR, screenAR);
-        
+
         if (screenAR < videoAR) {
             h = w / videoAR;
             console.log("activity AR h", h);
@@ -353,6 +364,6 @@ export class Video extends videoCommon.Video {
         lp.height = h;
         this._android.setLayoutParams(lp);
 
-        this._android.invalidate();               
+        this._android.invalidate();
     }
 }
