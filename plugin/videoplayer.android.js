@@ -239,10 +239,10 @@ var Video = (function (_super) {
             this._player.stop();
         }
     };
-    Video.prototype.seekTo = function (pos) {
+    Video.prototype.seekToPos = function (pos) {
         this._player.setPosition(pos);
     };
-    Video.prototype.seekToTime = function (msec) {
+    Video.prototype.seekTo = function (msec) {
         this._player.setTime(msec);
     };
     Video.prototype.getTime = function () {

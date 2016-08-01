@@ -280,11 +280,11 @@ export class Video extends videoCommon.Video {
         }
     }
 
-    public seekTo(pos: number): void {
+    public seekToPos(pos: number): void {
         this._player.setPosition(pos);
     }
 
-    public seekToTime(msec: number): void {
+    public seekTo(msec: number): void {
         this._player.setTime(msec);
     }
 
