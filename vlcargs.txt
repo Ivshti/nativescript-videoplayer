@@ -1,0 +1,21 @@
+        "--no-media-library",
+        "--no-sub-autodetect-file",
+        "--no-spu",
+        "--no-stats",
+        "--no-osd",
+        "--network-caching","3500"
+       //"--no-drop-late-frames", // This might fix the uglyness when dropping frames
+        "--no-skip-frames",
+
+        //"--no-avcodec-hurry-up",
+
+        // To fix the seeking ugliness, we have to find an i-frame in the video file and restore the frame from there
+        //"--prefer-system-codecs", // optimizes a bit on OS X but not worth the risk
+        // no deinterlace
+        "--no-video-title-show", // not needed?
+        "--disable-screensaver", // also shouldn't be needed - won't do anything
+
+        "--no-autoscale", // DISABLE FUCKING SWSCALE, this doesn't work
+
+        "--ipv4-timeout=86400000", // maybe this doesn't affect anything
+
